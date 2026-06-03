@@ -1,4 +1,4 @@
-import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Role } from './role.entity';
@@ -6,7 +6,7 @@ import { Role } from './role.entity';
 export const DEFAULT_ROLES = ['user', 'admin'] as const;
 
 @Injectable()
-export class RolesService implements OnModuleInit {
+export class RolesService {
   private readonly logger = new Logger(RolesService.name);
 
   constructor(
@@ -14,8 +14,8 @@ export class RolesService implements OnModuleInit {
     private readonly rolesRepository: Repository<Role>,
   ) {}
 
-  /** Seed the default roles on startup; idempotent. */
-  async onModuleInit(): Promise<void> {
+  /** Seed the default roles; idempotent. Invoked by the standalone seeder. */
+  async seedDefaults(): Promise<void> {
     for (const name of DEFAULT_ROLES) {
       const role = await this.findOrCreate(name);
       this.logger.log(`Role ready: ${role.name} (id=${role.id})`);
