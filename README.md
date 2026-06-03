@@ -148,6 +148,8 @@ Contoh: `GET /users?page=2&limit=10&sortBy=name&sortOrder=ASC&search=budi&active
 
 Base URL: `http://localhost:3000`
 
+> Dokumentasi lengkap (query param, body, required/optional, status code) ada di **[API.md](API.md)**.
+
 ### Auth
 
 | Method | Endpoint         | Auth          | Body                                  | Keterangan                          |
