@@ -24,7 +24,7 @@ export class ActivityLog {
   @Column({ name: 'tool_name' })
   toolName: string;
 
-  @Column({ type: 'simple-json', nullable: true })
+  @Column({ type: 'jsonb', nullable: true })
   metadata: Record<string, any> | null;
 
   @Column({ name: 'ip_address', type: 'varchar', nullable: true })

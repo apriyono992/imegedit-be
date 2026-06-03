@@ -32,11 +32,12 @@ async function seed() {
     } else {
       const name = config.get<string>('ADMIN_NAME', 'Administrator');
       const password = config.get<string>('ADMIN_PASSWORD', 'ChangeMe123!');
+      const saltRounds = Number(config.get<string>('BCRYPT_SALT_ROUNDS', '10'));
       const adminRole = await roles.findOrCreate('admin');
       await users.create({
         name,
         email,
-        password: await bcrypt.hash(password, 10),
+        password: await bcrypt.hash(password, saltRounds),
         roleId: adminRole.id,
       });
       logger.log(`Admin user created: ${email}`);

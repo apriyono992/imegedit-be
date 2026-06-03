@@ -4,7 +4,7 @@ Backend untuk aplikasi edit foto (proses edit di frontend). Backend menangani
 **autentikasi**, **manajemen user & role**, **log aktivitas edit**, dan
 **audit trail** untuk setiap aksi user.
 
-Dibangun dengan **NestJS 11 + TypeORM + SQLite (better-sqlite3)**.
+Dibangun dengan **NestJS 11 + TypeORM + PostgreSQL (pg)**.
 
 ---
 
@@ -26,6 +26,7 @@ Dibangun dengan **NestJS 11 + TypeORM + SQLite (better-sqlite3)**.
 
 - Node.js >= 20 (diuji di v22)
 - npm
+- PostgreSQL >= 13 (buat database kosong dulu, mis. `imagedit`)
 
 ---
 
@@ -35,19 +36,23 @@ Dibangun dengan **NestJS 11 + TypeORM + SQLite (better-sqlite3)**.
 # 1. Install dependency
 npm install
 
-# 2. (opsional) buat file .env — lihat tabel di bawah. Semua punya default.
+# 2. Buat database PostgreSQL kosong, mis:
+#    createdb imagedit
+#    (atau lewat psql: CREATE DATABASE imagedit;)
 
-# 3. Seed role + admin user
+# 3. Buat file .env sesuai koneksi PostgreSQL — lihat tabel di bawah.
+
+# 4. Seed role + admin user
 npm run seed
 
-# 4. Jalankan
+# 5. Jalankan
 npm run start:dev
 ```
 
 Server jalan di `http://localhost:3000`.
 
 > Tabel database dibuat otomatis (`synchronize: true`) saat aplikasi/seed pertama
-> kali jalan. Database tersimpan di `data.sqlite`.
+> kali jalan, asalkan database PostgreSQL-nya sudah ada.
 
 ### Akun admin default (dari seeder)
 
@@ -67,10 +72,15 @@ Semua opsional (ada default). Letakkan di file `.env`.
 | Variable                | Default               | Keterangan                              |
 | ----------------------- | --------------------- | --------------------------------------- |
 | `PORT`                  | `3000`                | Port HTTP                               |
-| `DATABASE_PATH`         | `data.sqlite`         | Lokasi file SQLite                      |
+| `DATABASE_HOST`         | `localhost`           | Host PostgreSQL                         |
+| `DATABASE_PORT`         | `5432`                | Port PostgreSQL                         |
+| `DATABASE_USER`         | `postgres`            | User PostgreSQL                         |
+| `DATABASE_PASSWORD`     | `postgres`            | Password PostgreSQL                     |
+| `DATABASE_NAME`         | `imagedit`            | Nama database                           |
 | `JWT_SECRET`            | `dev-secret-change-me`| **Wajib diganti di production**         |
 | `JWT_ACCESS_EXPIRES_IN` | `15m`                 | Masa berlaku access token               |
 | `REFRESH_EXPIRES_DAYS`  | `7`                   | Masa berlaku refresh token (hari)       |
+| `BCRYPT_SALT_ROUNDS`    | `10`                  | Jumlah salt rounds bcrypt               |
 | `ADMIN_EMAIL`           | `admin@example.com`   | Email admin yang di-seed                |
 | `ADMIN_PASSWORD`        | `ChangeMe123!`        | Password admin yang di-seed             |
 | `ADMIN_NAME`            | `Administrator`       | Nama admin yang di-seed                 |

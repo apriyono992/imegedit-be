@@ -40,7 +40,7 @@ export class LogHistory {
   @Column({ name: 'user_agent', type: 'varchar', nullable: true })
   userAgent: string | null;
 
-  @Column({ type: 'simple-json', nullable: true })
+  @Column({ type: 'jsonb', nullable: true })
   metadata: Record<string, any> | null;
 
   @CreateDateColumn({ name: 'created_at' })

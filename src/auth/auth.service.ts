@@ -15,11 +15,11 @@ import { RefreshTokensService } from './refresh-tokens.service';
 import { JwtPayload } from './strategies/jwt.strategy';
 
 const DEFAULT_ROLE = 'user';
-const SALT_ROUNDS = 10;
 
 @Injectable()
 export class AuthService {
   private readonly refreshTtlMs: number;
+  private readonly saltRounds: number;
 
   constructor(
     private readonly usersService: UsersService,
@@ -30,6 +30,7 @@ export class AuthService {
   ) {
     const days = Number(config.get<string>('REFRESH_EXPIRES_DAYS', '7'));
     this.refreshTtlMs = days * 24 * 60 * 60 * 1000;
+    this.saltRounds = Number(config.get<string>('BCRYPT_SALT_ROUNDS', '10'));
   }
 
   async register(dto: RegisterDto) {
@@ -45,7 +46,7 @@ export class AuthService {
       throw new ConflictException('Role not found');
     }
 
-    const passwordHash = await bcrypt.hash(dto.password, SALT_ROUNDS);
+    const passwordHash = await bcrypt.hash(dto.password, this.saltRounds);
     const user = await this.usersService.create({
       name: dto.name,
       email: dto.email,
