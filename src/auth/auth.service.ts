@@ -5,11 +5,13 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
+import { randomUUID } from 'node:crypto';
 import { RolesService } from '../roles/roles.service';
 import { User } from '../users/user.entity';
 import { UsersService } from '../users/users.service';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
+import { RevokedTokensService } from './revoked-tokens.service';
 import { JwtPayload } from './strategies/jwt.strategy';
 
 const DEFAULT_ROLE = 'user';
@@ -21,6 +23,7 @@ export class AuthService {
     private readonly usersService: UsersService,
     private readonly rolesService: RolesService,
     private readonly jwtService: JwtService,
+    private readonly revokedTokensService: RevokedTokensService,
   ) {}
 
   async register(dto: RegisterDto) {
@@ -58,11 +61,29 @@ export class AuthService {
     return this.buildAuthResponse(user);
   }
 
+  /** Revoke the given access token so it can no longer be used. */
+  async logout(token: string): Promise<void> {
+    const decoded = this.jwtService.decode(token) as {
+      jti?: string;
+      sub?: string;
+      exp?: number;
+    } | null;
+    if (decoded?.jti) {
+      const expiresAt = decoded.exp ? new Date(decoded.exp * 1000) : new Date();
+      await this.revokedTokensService.revoke(
+        decoded.jti,
+        decoded.sub ?? null,
+        expiresAt,
+      );
+    }
+  }
+
   private buildAuthResponse(user: User) {
     const payload: JwtPayload = {
       sub: user.id,
       email: user.email,
       roleId: user.roleId,
+      jti: randomUUID(),
     };
     return {
       accessToken: this.jwtService.sign(payload),
