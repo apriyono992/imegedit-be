@@ -1,11 +1,14 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
+import { Cron, CronExpression } from '@nestjs/schedule';
 import { InjectRepository } from '@nestjs/typeorm';
 import { createHash, randomBytes } from 'node:crypto';
-import { Repository } from 'typeorm';
+import { LessThan, Repository } from 'typeorm';
 import { RefreshToken } from './refresh-token.entity';
 
 @Injectable()
 export class RefreshTokensService {
+  private readonly logger = new Logger(RefreshTokensService.name);
+
   constructor(
     @InjectRepository(RefreshToken)
     private readonly refreshTokensRepository: Repository<RefreshToken>,
@@ -52,5 +55,22 @@ export class RefreshTokensService {
   /** Revoke every active refresh token for a user (logout from all devices). */
   async revokeAllForUser(userId: string): Promise<void> {
     await this.refreshTokensRepository.softDelete({ userId });
+  }
+
+  /**
+   * Hard-delete refresh tokens past their expiry (both revoked and active-but-expired);
+   * an expired token is invalid regardless, so the row is just dead weight.
+   * Uses a raw DELETE so soft-deleted rows are purged too. Runs hourly.
+   */
+  @Cron(CronExpression.EVERY_HOUR)
+  async purgeExpired(): Promise<number> {
+    const result = await this.refreshTokensRepository.delete({
+      expiresAt: LessThan(new Date()),
+    });
+    const removed = result.affected ?? 0;
+    if (removed > 0) {
+      this.logger.log(`Purged ${removed} expired refresh token(s)`);
+    }
+    return removed;
   }
 }
