@@ -1,98 +1,150 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Imagedit Backend
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+Backend untuk aplikasi edit foto (proses edit di frontend). Backend menangani
+**autentikasi**, **manajemen user & role**, **log aktivitas edit**, dan
+**audit trail** untuk setiap aksi user.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+Dibangun dengan **NestJS 11 + TypeORM + SQLite (better-sqlite3)**.
 
-## Description
+---
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## Fitur
 
-## Project setup
+- **Auth JWT** — access token pendek (15m) + refresh token (7 hari, rotasi) dengan bcrypt.
+- **Logout** mencabut refresh token di backend (denylist via soft delete).
+- **Role-based access** — guard `@Roles('admin')` untuk endpoint admin.
+- **Manajemen user** (admin) — list / detail / update (role, status aktif) / soft delete.
+- **Activity logs** — catatan aksi edit yang dikirim frontend.
+- **Audit log (`log_history`)** — otomatis mencatat **setiap aksi** (POST/PUT/PATCH/DELETE),
+  sukses maupun gagal, termasuk penolakan guard.
+- **Soft delete** di semua tabel utama.
+- **Seeder** role + admin user, dan **cron** pembersih refresh token kedaluwarsa.
 
-```bash
-$ npm install
-```
+---
 
-## Compile and run the project
+## Prasyarat
+
+- Node.js >= 20 (diuji di v22)
+- npm
+
+---
+
+## Setup
 
 ```bash
-# development
-$ npm run start
+# 1. Install dependency
+npm install
 
-# watch mode
-$ npm run start:dev
+# 2. (opsional) buat file .env — lihat tabel di bawah. Semua punya default.
 
-# production mode
-$ npm run start:prod
+# 3. Seed role + admin user
+npm run seed
+
+# 4. Jalankan
+npm run start:dev
 ```
 
-## Run tests
+Server jalan di `http://localhost:3000`.
 
-```bash
-# unit tests
-$ npm run test
+> Tabel database dibuat otomatis (`synchronize: true`) saat aplikasi/seed pertama
+> kali jalan. Database tersimpan di `data.sqlite`.
 
-# e2e tests
-$ npm run test:e2e
+### Akun admin default (dari seeder)
 
-# test coverage
-$ npm run test:cov
-```
+| Field    | Default               |
+| -------- | --------------------- |
+| Email    | `admin@example.com`   |
+| Password | `ChangeMe123!`        |
 
-## Deployment
+> ⚠️ Ganti password untuk production lewat env `ADMIN_PASSWORD` sebelum seeding.
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+---
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+## Environment variables
 
-```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
-```
+Semua opsional (ada default). Letakkan di file `.env`.
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+| Variable                | Default               | Keterangan                              |
+| ----------------------- | --------------------- | --------------------------------------- |
+| `PORT`                  | `3000`                | Port HTTP                               |
+| `DATABASE_PATH`         | `data.sqlite`         | Lokasi file SQLite                      |
+| `JWT_SECRET`            | `dev-secret-change-me`| **Wajib diganti di production**         |
+| `JWT_ACCESS_EXPIRES_IN` | `15m`                 | Masa berlaku access token               |
+| `REFRESH_EXPIRES_DAYS`  | `7`                   | Masa berlaku refresh token (hari)       |
+| `ADMIN_EMAIL`           | `admin@example.com`   | Email admin yang di-seed                |
+| `ADMIN_PASSWORD`        | `ChangeMe123!`        | Password admin yang di-seed             |
+| `ADMIN_NAME`            | `Administrator`       | Nama admin yang di-seed                 |
 
-## Resources
+---
 
-Check out a few resources that may come in handy when working with NestJS:
+## Script npm
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+| Script              | Fungsi                                |
+| ------------------- | ------------------------------------- |
+| `npm run start:dev` | Jalankan dengan watch mode            |
+| `npm run start`     | Jalankan biasa                        |
+| `npm run start:prod`| Jalankan hasil build (`dist/`)        |
+| `npm run build`     | Build ke `dist/`                      |
+| `npm run seed`      | Seed role (`user`, `admin`) + admin user (idempoten) |
+| `npm run lint`      | Lint + auto-fix                       |
+| `npm run test`      | Unit test                             |
 
-## Support
+---
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+## API Endpoints
 
-## Stay in touch
+Base URL: `http://localhost:3000`
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+### Auth
 
-## License
+| Method | Endpoint         | Auth          | Body                                  | Keterangan                          |
+| ------ | ---------------- | ------------- | ------------------------------------- | ----------------------------------- |
+| POST   | `/auth/register` | —             | `{ name, email, password, roleId? }`  | Daftar (default role `user`)        |
+| POST   | `/auth/login`    | —             | `{ email, password }`                 | Login → access + refresh token      |
+| POST   | `/auth/refresh`  | —             | `{ refreshToken }`                    | Tukar refresh token → token baru (rotasi) |
+| POST   | `/auth/logout`   | Bearer access | `{ refreshToken }`                    | Cabut refresh token                 |
+| GET    | `/auth/me`       | Bearer access | —                                     | Profil user saat ini                |
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+### Users (admin only)
+
+| Method | Endpoint      | Body                              | Keterangan          |
+| ------ | ------------- | --------------------------------- | ------------------- |
+| GET    | `/users`      | —                                 | List semua user     |
+| GET    | `/users/:id`  | —                                 | Detail user         |
+| PATCH  | `/users/:id`  | `{ name?, roleId?, active? }`     | Update user         |
+| DELETE | `/users/:id`  | —                                 | Soft delete user    |
+
+### Activity Logs
+
+| Method | Endpoint              | Auth          | Body                       | Keterangan                |
+| ------ | --------------------- | ------------- | -------------------------- | ------------------------- |
+| POST   | `/activity-logs`      | Bearer access | `{ toolName, metadata? }`  | Catat aksi edit           |
+| GET    | `/activity-logs`      | Bearer access | —                          | Log milik sendiri         |
+| GET    | `/activity-logs/all`  | admin         | —                          | Semua log (admin)         |
+
+### Audit Log
+
+| Method | Endpoint        | Auth  | Keterangan                          |
+| ------ | --------------- | ----- | ----------------------------------- |
+| GET    | `/log-history`  | admin | Audit trail semua aksi user         |
+
+---
+
+## Alur token (frontend)
+
+1. `login` / `register` → simpan `accessToken` + `refreshToken`.
+2. Kirim `Authorization: Bearer <accessToken>` di setiap request terproteksi.
+3. Saat access token kena `401`, panggil `/auth/refresh` dengan `refreshToken`
+   untuk dapat pasangan token baru (refresh token lama otomatis tidak valid).
+4. `logout` → kirim `refreshToken` agar dicabut di server, lalu hapus kedua token di frontend.
+
+---
+
+## Postman
+
+Import file **`imagedit.postman_collection.json`** (di root repo) ke Postman.
+
+- Variabel `baseUrl` default `http://localhost:3000`.
+- Request **Login** / **Register** / **Refresh** otomatis menyimpan `accessToken`,
+  `refreshToken`, dan `userId` ke variabel collection lewat test script — jadi
+  request lain langsung pakai token tanpa copy-paste manual.

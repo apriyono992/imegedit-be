@@ -1,0 +1,222 @@
+{
+  "info": {
+    "name": "Imagedit Backend",
+    "description": "API collection untuk Imagedit backend (auth, users, activity logs, audit log). Login/Register/Refresh otomatis menyimpan token ke variabel collection.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:3000" },
+    { "key": "accessToken", "value": "" },
+    { "key": "refreshToken", "value": "" },
+    { "key": "userId", "value": "" },
+    { "key": "targetUserId", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const j = pm.response.json();",
+                  "if (j.accessToken) pm.collectionVariables.set('accessToken', j.accessToken);",
+                  "if (j.refreshToken) pm.collectionVariables.set('refreshToken', j.refreshToken);",
+                  "if (j.user && j.user.id) pm.collectionVariables.set('userId', j.user.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/auth/register", "host": ["{{baseUrl}}"], "path": ["auth", "register"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Budi\",\n  \"email\": \"budi@example.com\",\n  \"password\": \"secret123\"\n}"
+            },
+            "description": "Daftar user baru. roleId opsional (default role 'user')."
+          }
+        },
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const j = pm.response.json();",
+                  "if (j.accessToken) pm.collectionVariables.set('accessToken', j.accessToken);",
+                  "if (j.refreshToken) pm.collectionVariables.set('refreshToken', j.refreshToken);",
+                  "if (j.user && j.user.id) pm.collectionVariables.set('userId', j.user.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/auth/login", "host": ["{{baseUrl}}"], "path": ["auth", "login"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@example.com\",\n  \"password\": \"ChangeMe123!\"\n}"
+            },
+            "description": "Login. Default body memakai kredensial admin hasil seeder."
+          }
+        },
+        {
+          "name": "Refresh",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const j = pm.response.json();",
+                  "if (j.accessToken) pm.collectionVariables.set('accessToken', j.accessToken);",
+                  "if (j.refreshToken) pm.collectionVariables.set('refreshToken', j.refreshToken);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/auth/refresh", "host": ["{{baseUrl}}"], "path": ["auth", "refresh"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}"
+            },
+            "description": "Tukar refresh token dengan pasangan token baru (rotasi)."
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "url": { "raw": "{{baseUrl}}/auth/logout", "host": ["{{baseUrl}}"], "path": ["auth", "logout"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}"
+            },
+            "description": "Cabut refresh token di server."
+          }
+        },
+        {
+          "name": "Me",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": { "raw": "{{baseUrl}}/auth/me", "host": ["{{baseUrl}}"], "path": ["auth", "me"] },
+            "description": "Profil user yang sedang login."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Users (admin)",
+      "item": [
+        {
+          "name": "List users",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": { "raw": "{{baseUrl}}/users", "host": ["{{baseUrl}}"], "path": ["users"] }
+          }
+        },
+        {
+          "name": "Get user by id",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": { "raw": "{{baseUrl}}/users/{{targetUserId}}", "host": ["{{baseUrl}}"], "path": ["users", "{{targetUserId}}"] }
+          }
+        },
+        {
+          "name": "Update user",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "url": { "raw": "{{baseUrl}}/users/{{targetUserId}}", "host": ["{{baseUrl}}"], "path": ["users", "{{targetUserId}}"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"roleId\": 2,\n  \"active\": true\n}"
+            },
+            "description": "Update name / roleId / active. Semua field opsional."
+          }
+        },
+        {
+          "name": "Delete user (soft)",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": { "raw": "{{baseUrl}}/users/{{targetUserId}}", "host": ["{{baseUrl}}"], "path": ["users", "{{targetUserId}}"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Activity Logs",
+      "item": [
+        {
+          "name": "Create activity log",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "url": { "raw": "{{baseUrl}}/activity-logs", "host": ["{{baseUrl}}"], "path": ["activity-logs"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"toolName\": \"crop\",\n  \"metadata\": {\n    \"width\": 800,\n    \"height\": 600\n  }\n}"
+            },
+            "description": "Catat aksi edit. metadata opsional (bebas)."
+          }
+        },
+        {
+          "name": "My activity logs",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": { "raw": "{{baseUrl}}/activity-logs", "host": ["{{baseUrl}}"], "path": ["activity-logs"] }
+          }
+        },
+        {
+          "name": "All activity logs (admin)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": { "raw": "{{baseUrl}}/activity-logs/all", "host": ["{{baseUrl}}"], "path": ["activity-logs", "all"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Audit Log (admin)",
+      "item": [
+        {
+          "name": "Get audit log",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": { "raw": "{{baseUrl}}/log-history", "host": ["{{baseUrl}}"], "path": ["log-history"] },
+            "description": "Audit trail semua aksi user (admin only)."
+          }
+        }
+      ]
+    }
+  ]
+}
