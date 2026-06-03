@@ -1,6 +1,8 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { paginate, PaginatedResult } from '../common/pagination/paginate';
+import { QueryUsersDto } from './dto/query-users.dto';
 import { User } from './user.entity';
 
 @Injectable()
@@ -10,10 +12,33 @@ export class UsersService {
     private readonly usersRepository: Repository<User>,
   ) {}
 
-  findAll(): Promise<User[]> {
-    return this.usersRepository.find({
-      relations: { role: true },
-      order: { createdAt: 'DESC' },
+  findAll(query: QueryUsersDto): Promise<PaginatedResult<User>> {
+    const qb = this.usersRepository
+      .createQueryBuilder('user')
+      .leftJoinAndSelect('user.role', 'role');
+
+    if (query.roleId !== undefined) {
+      qb.andWhere('user.roleId = :roleId', { roleId: query.roleId });
+    }
+    if (query.active !== undefined) {
+      qb.andWhere('user.active = :active', { active: query.active });
+    }
+
+    return paginate(qb, {
+      page: query.page,
+      limit: query.limit,
+      search: query.search,
+      sortBy: query.sortBy,
+      sortOrder: query.sortOrder,
+      searchableColumns: ['user.name', 'user.email', 'role.name'],
+      sortableColumns: {
+        name: 'user.name',
+        email: 'user.email',
+        active: 'user.active',
+        role: 'role.name',
+        createdAt: 'user.createdAt',
+      },
+      defaultSortBy: 'createdAt',
     });
   }
 

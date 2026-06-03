@@ -130,7 +130,20 @@
           "request": {
             "method": "GET",
             "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
-            "url": { "raw": "{{baseUrl}}/users", "host": ["{{baseUrl}}"], "path": ["users"] }
+            "url": {
+              "raw": "{{baseUrl}}/users?page=1&limit=20&sortBy=createdAt&sortOrder=DESC",
+              "host": ["{{baseUrl}}"],
+              "path": ["users"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" },
+                { "key": "sortBy", "value": "createdAt", "description": "name | email | active | role | createdAt" },
+                { "key": "sortOrder", "value": "DESC", "description": "ASC | DESC" },
+                { "key": "search", "value": "", "disabled": true, "description": "cari di nama/email/role" },
+                { "key": "roleId", "value": "", "disabled": true },
+                { "key": "active", "value": "true", "disabled": true }
+              ]
+            }
           }
         },
         {
@@ -191,7 +204,19 @@
           "request": {
             "method": "GET",
             "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
-            "url": { "raw": "{{baseUrl}}/activity-logs", "host": ["{{baseUrl}}"], "path": ["activity-logs"] }
+            "url": {
+              "raw": "{{baseUrl}}/activity-logs?page=1&limit=20&sortBy=createdAt&sortOrder=DESC",
+              "host": ["{{baseUrl}}"],
+              "path": ["activity-logs"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" },
+                { "key": "sortBy", "value": "createdAt", "description": "toolName | createdAt" },
+                { "key": "sortOrder", "value": "DESC", "description": "ASC | DESC" },
+                { "key": "search", "value": "", "disabled": true, "description": "cari di toolName/ipAddress" },
+                { "key": "toolName", "value": "", "disabled": true }
+              ]
+            }
           }
         },
         {
@@ -199,7 +224,20 @@
           "request": {
             "method": "GET",
             "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
-            "url": { "raw": "{{baseUrl}}/activity-logs/all", "host": ["{{baseUrl}}"], "path": ["activity-logs", "all"] }
+            "url": {
+              "raw": "{{baseUrl}}/activity-logs/all?page=1&limit=20&sortBy=createdAt&sortOrder=DESC",
+              "host": ["{{baseUrl}}"],
+              "path": ["activity-logs", "all"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" },
+                { "key": "sortBy", "value": "createdAt", "description": "toolName | createdAt" },
+                { "key": "sortOrder", "value": "DESC", "description": "ASC | DESC" },
+                { "key": "search", "value": "", "disabled": true, "description": "cari di toolName/ipAddress/nama/email user" },
+                { "key": "toolName", "value": "", "disabled": true },
+                { "key": "userId", "value": "", "disabled": true }
+              ]
+            }
           }
         }
       ]
@@ -212,7 +250,21 @@
           "request": {
             "method": "GET",
             "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
-            "url": { "raw": "{{baseUrl}}/log-history", "host": ["{{baseUrl}}"], "path": ["log-history"] },
+            "url": {
+              "raw": "{{baseUrl}}/log-history?page=1&limit=20&sortBy=createdAt&sortOrder=DESC",
+              "host": ["{{baseUrl}}"],
+              "path": ["log-history"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" },
+                { "key": "sortBy", "value": "createdAt", "description": "action | method | path | statusCode | createdAt" },
+                { "key": "sortOrder", "value": "DESC", "description": "ASC | DESC" },
+                { "key": "search", "value": "", "disabled": true, "description": "cari di action/method/path/ip/userAgent/nama/email" },
+                { "key": "method", "value": "", "disabled": true, "description": "GET | POST | PATCH | DELETE" },
+                { "key": "statusCode", "value": "", "disabled": true },
+                { "key": "userId", "value": "", "disabled": true }
+              ]
+            },
             "description": "Audit trail semua aksi user (admin only)."
           }
         }

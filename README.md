@@ -102,6 +102,48 @@ Semua opsional (ada default). Letakkan di file `.env`.
 
 ---
 
+## Query list (pagination, filter, sort, search)
+
+Semua endpoint **GET list** (`/users`, `/activity-logs`, `/activity-logs/all`,
+`/log-history`) mendukung query param berikut:
+
+| Param       | Default     | Keterangan                                                        |
+| ----------- | ----------- | ----------------------------------------------------------------- |
+| `page`      | `1`         | Halaman (mulai 1)                                                 |
+| `limit`     | `20`        | Item per halaman (maks `100`)                                     |
+| `sortBy`    | `createdAt` | Field sort (per endpoint, lihat di bawah; key tak valid → default)|
+| `sortOrder` | `DESC`      | `ASC` / `DESC`                                                    |
+| `search`    | —           | Pencarian teks bebas (case-insensitive) di kolom yang relevan     |
+
+Plus filter spesifik per endpoint:
+
+| Endpoint              | `sortBy` yang valid                            | Filter           | Kolom `search`                                              |
+| --------------------- | ---------------------------------------------- | ---------------- | ----------------------------------------------------------- |
+| `/users`              | `name`, `email`, `active`, `role`, `createdAt` | `roleId`, `active` | nama, email, nama role                                    |
+| `/activity-logs`      | `toolName`, `createdAt`                        | `toolName`       | toolName, ipAddress                                         |
+| `/activity-logs/all`  | `toolName`, `createdAt`                        | `userId`, `toolName` | toolName, ipAddress, nama & email user                  |
+| `/log-history`        | `action`, `method`, `path`, `statusCode`, `createdAt` | `method`, `statusCode`, `userId` | action, method, path, ip, userAgent, nama & email user |
+
+Response berbentuk:
+
+```json
+{
+  "data": [ /* ...rows... */ ],
+  "meta": {
+    "page": 1,
+    "limit": 20,
+    "total": 42,
+    "totalPages": 3,
+    "hasNextPage": true,
+    "hasPrevPage": false
+  }
+}
+```
+
+Contoh: `GET /users?page=2&limit=10&sortBy=name&sortOrder=ASC&search=budi&active=true`
+
+---
+
 ## API Endpoints
 
 Base URL: `http://localhost:3000`

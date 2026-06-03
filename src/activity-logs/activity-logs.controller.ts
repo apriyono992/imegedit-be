@@ -4,6 +4,7 @@ import {
   Get,
   Ip,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
@@ -13,6 +14,7 @@ import { RolesGuard } from '../auth/guards/roles.guard';
 import { User } from '../users/user.entity';
 import { ActivityLogsService } from './activity-logs.service';
 import { CreateActivityLogDto } from './dto/create-activity-log.dto';
+import { QueryActivityLogsDto } from './dto/query-activity-logs.dto';
 
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('activity-logs')
@@ -34,13 +36,16 @@ export class ActivityLogsController {
   }
 
   @Get()
-  findMine(@CurrentUser() user: User) {
-    return this.activityLogsService.findByUser(user.id);
+  findMine(
+    @CurrentUser() user: User,
+    @Query() query: QueryActivityLogsDto,
+  ) {
+    return this.activityLogsService.findByUser(user.id, query);
   }
 
   @Roles('admin')
   @Get('all')
-  findAll() {
-    return this.activityLogsService.findAll();
+  findAll(@Query() query: QueryActivityLogsDto) {
+    return this.activityLogsService.findAll(query);
   }
 }
