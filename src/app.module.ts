@@ -5,6 +5,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ActivityLogsModule } from './activity-logs/activity-logs.module';
 import { AuthModule } from './auth/auth.module';
+import { LogHistoryModule } from './log-history/log-history.module';
 import { RolesModule } from './roles/roles.module';
 import { UsersModule } from './users/users.module';
 
@@ -21,6 +22,7 @@ import { UsersModule } from './users/users.module';
     UsersModule,
     RolesModule,
     ActivityLogsModule,
+    LogHistoryModule,
   ],
   controllers: [AppController],
   providers: [AppService],
