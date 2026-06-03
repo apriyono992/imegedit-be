@@ -3,15 +3,15 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
-import { randomUUID } from 'node:crypto';
 import { RolesService } from '../roles/roles.service';
 import { User } from '../users/user.entity';
 import { UsersService } from '../users/users.service';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
-import { RevokedTokensService } from './revoked-tokens.service';
+import { RefreshTokensService } from './refresh-tokens.service';
 import { JwtPayload } from './strategies/jwt.strategy';
 
 const DEFAULT_ROLE = 'user';
@@ -19,12 +19,18 @@ const SALT_ROUNDS = 10;
 
 @Injectable()
 export class AuthService {
+  private readonly refreshTtlMs: number;
+
   constructor(
     private readonly usersService: UsersService,
     private readonly rolesService: RolesService,
     private readonly jwtService: JwtService,
-    private readonly revokedTokensService: RevokedTokensService,
-  ) {}
+    private readonly refreshTokensService: RefreshTokensService,
+    config: ConfigService,
+  ) {
+    const days = Number(config.get<string>('REFRESH_EXPIRES_DAYS', '7'));
+    this.refreshTtlMs = days * 24 * 60 * 60 * 1000;
+  }
 
   async register(dto: RegisterDto) {
     const existing = await this.usersService.findByEmail(dto.email);
@@ -61,32 +67,39 @@ export class AuthService {
     return this.buildAuthResponse(user);
   }
 
-  /** Revoke the given access token so it can no longer be used. */
-  async logout(token: string): Promise<void> {
-    const decoded = this.jwtService.decode(token) as {
-      jti?: string;
-      sub?: string;
-      exp?: number;
-    } | null;
-    if (decoded?.jti) {
-      const expiresAt = decoded.exp ? new Date(decoded.exp * 1000) : new Date();
-      await this.revokedTokensService.revoke(
-        decoded.jti,
-        decoded.sub ?? null,
-        expiresAt,
-      );
+  /** Exchange a valid refresh token for a new access token, rotating the refresh token. */
+  async refresh(refreshToken: string) {
+    const stored = await this.refreshTokensService.findValid(refreshToken);
+    if (!stored) {
+      throw new UnauthorizedException('Invalid or expired refresh token');
     }
+    const user = await this.usersService.findById(stored.userId);
+    if (!user || !user.active) {
+      throw new UnauthorizedException();
+    }
+    // Rotate: invalidate the used refresh token before issuing a new pair.
+    await this.refreshTokensService.revoke(refreshToken);
+    return this.buildAuthResponse(user);
   }
 
-  private buildAuthResponse(user: User) {
+  /** Revoke the given refresh token so it can no longer be exchanged. */
+  async logout(refreshToken: string): Promise<void> {
+    await this.refreshTokensService.revoke(refreshToken);
+  }
+
+  private async buildAuthResponse(user: User) {
     const payload: JwtPayload = {
       sub: user.id,
       email: user.email,
       roleId: user.roleId,
-      jti: randomUUID(),
     };
+    const refreshToken = await this.refreshTokensService.issue(
+      user.id,
+      this.refreshTtlMs,
+    );
     return {
       accessToken: this.jwtService.sign(payload),
+      refreshToken,
       user: {
         id: user.id,
         name: user.name,

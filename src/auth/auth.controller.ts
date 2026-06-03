@@ -10,6 +10,7 @@ import {
 } from '@nestjs/common';
 import { CurrentUser } from './decorators/current-user.decorator';
 import { LoginDto } from './dto/login.dto';
+import { RefreshDto } from './dto/refresh.dto';
 import { RegisterDto } from './dto/register.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { AuthService } from './auth.service';
@@ -17,7 +18,6 @@ import { User } from '../users/user.entity';
 
 interface AuthRequest {
   user?: { id: string };
-  headers: Record<string, any>;
 }
 
 @Controller('auth')
@@ -41,13 +41,19 @@ export class AuthController {
     return result;
   }
 
+  @Post('refresh')
+  @HttpCode(HttpStatus.OK)
+  async refresh(@Body() dto: RefreshDto, @Req() req: AuthRequest) {
+    const result = await this.authService.refresh(dto.refreshToken);
+    req.user = { id: result.user.id };
+    return result;
+  }
+
   @UseGuards(JwtAuthGuard)
   @Post('logout')
   @HttpCode(HttpStatus.OK)
-  async logout(@Req() req: AuthRequest) {
-    const header = req.headers.authorization ?? '';
-    const token = header.startsWith('Bearer ') ? header.slice(7) : '';
-    await this.authService.logout(token);
+  async logout(@Body() dto: RefreshDto) {
+    await this.authService.logout(dto.refreshToken);
     return { message: 'Logged out' };
   }
 

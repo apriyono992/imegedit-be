@@ -8,8 +8,8 @@ import { RolesModule } from '../roles/roles.module';
 import { UsersModule } from '../users/users.module';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
-import { RevokedToken } from './revoked-token.entity';
-import { RevokedTokensService } from './revoked-tokens.service';
+import { RefreshToken } from './refresh-token.entity';
+import { RefreshTokensService } from './refresh-tokens.service';
 import { JwtStrategy } from './strategies/jwt.strategy';
 
 @Module({
@@ -17,22 +17,22 @@ import { JwtStrategy } from './strategies/jwt.strategy';
     UsersModule,
     RolesModule,
     PassportModule,
-    TypeOrmModule.forFeature([RevokedToken]),
+    TypeOrmModule.forFeature([RefreshToken]),
     JwtModule.registerAsync({
       inject: [ConfigService],
       useFactory: (config: ConfigService): JwtModuleOptions => ({
         secret: config.get<string>('JWT_SECRET', 'dev-secret-change-me'),
         signOptions: {
           expiresIn: config.get<string>(
-            'JWT_EXPIRES_IN',
-            '1d',
+            'JWT_ACCESS_EXPIRES_IN',
+            '15m',
           ) as SignOptions['expiresIn'],
         },
       }),
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy, RevokedTokensService],
+  providers: [AuthService, JwtStrategy, RefreshTokensService],
   exports: [AuthService],
 })
 export class AuthModule {}
