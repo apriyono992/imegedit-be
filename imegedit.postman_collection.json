@@ -1,7 +1,7 @@
 {
   "info": {
-    "name": "Imagedit Backend",
-    "description": "API collection untuk Imagedit backend (auth, users, activity logs, audit log). Login/Register/Refresh otomatis menyimpan token ke variabel collection.",
+    "name": "Imegedit Backend",
+    "description": "API collection untuk Imegedit backend (auth, users, activity logs, audit log). Login/Register/Refresh otomatis menyimpan token ke variabel collection.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [

@@ -1,4 +1,4 @@
-# Imagedit Backend
+# Imegedit Backend
 
 Backend untuk aplikasi edit foto (proses edit di frontend). Backend menangani
 **autentikasi**, **manajemen user & role**, **log aktivitas edit**, dan
@@ -26,7 +26,7 @@ Dibangun dengan **NestJS 11 + TypeORM + PostgreSQL (pg)**.
 
 - Node.js >= 20 (diuji di v22)
 - npm
-- PostgreSQL >= 13 (buat database kosong dulu, mis. `imagedit`)
+- PostgreSQL >= 13 (buat database kosong dulu, mis. `imegedit`)
 
 ---
 
@@ -37,8 +37,8 @@ Dibangun dengan **NestJS 11 + TypeORM + PostgreSQL (pg)**.
 npm install
 
 # 2. Buat database PostgreSQL kosong, mis:
-#    createdb imagedit
-#    (atau lewat psql: CREATE DATABASE imagedit;)
+#    createdb imegedit
+#    (atau lewat psql: CREATE DATABASE imegedit;)
 
 # 3. Buat file .env sesuai koneksi PostgreSQL — lihat tabel di bawah.
 
@@ -76,7 +76,7 @@ Semua opsional (ada default). Letakkan di file `.env`.
 | `DATABASE_PORT`         | `5432`                | Port PostgreSQL                         |
 | `DATABASE_USER`         | `postgres`            | User PostgreSQL                         |
 | `DATABASE_PASSWORD`     | `postgres`            | Password PostgreSQL                     |
-| `DATABASE_NAME`         | `imagedit`            | Nama database                           |
+| `DATABASE_NAME`         | `imegedit`            | Nama database                           |
 | `JWT_SECRET`            | `dev-secret-change-me`| **Wajib diganti di production**         |
 | `JWT_ACCESS_EXPIRES_IN` | `15m`                 | Masa berlaku access token               |
 | `REFRESH_EXPIRES_DAYS`  | `7`                   | Masa berlaku refresh token (hari)       |
@@ -152,7 +152,7 @@ Base URL: `http://localhost:3000`
 
 ## Postman
 
-Import file **`imagedit.postman_collection.json`** (di root repo) ke Postman.
+Import file **`imegedit.postman_collection.json`** (di root repo) ke Postman.
 
 - Variabel `baseUrl` default `http://localhost:3000`.
 - Request **Login** / **Register** / **Refresh** otomatis menyimpan `accessToken`,
