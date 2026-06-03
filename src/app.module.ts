@@ -22,7 +22,7 @@ import { UsersModule } from './users/users.module';
       password: process.env.DATABASE_PASSWORD ?? 'postgres',
       database: process.env.DATABASE_NAME ?? 'imegedit',
       autoLoadEntities: true,
-      synchronize: true,
+      synchronize: process.env.DATABASE_SYNCHRONIZE !== 'false',
     }),
     AuthModule,
     UsersModule,

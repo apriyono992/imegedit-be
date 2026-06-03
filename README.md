@@ -77,6 +77,7 @@ Semua opsional (ada default). Letakkan di file `.env`.
 | `DATABASE_USER`         | `postgres`            | User PostgreSQL                         |
 | `DATABASE_PASSWORD`     | `postgres`            | Password PostgreSQL                     |
 | `DATABASE_NAME`         | `imegedit`            | Nama database                           |
+| `DATABASE_SYNCHRONIZE`  | `true`                | Auto-sync skema TypeORM (set `false` di production) |
 | `JWT_SECRET`            | `dev-secret-change-me`| **Wajib diganti di production**         |
 | `JWT_ACCESS_EXPIRES_IN` | `15m`                 | Masa berlaku access token               |
 | `REFRESH_EXPIRES_DAYS`  | `7`                   | Masa berlaku refresh token (hari)       |
