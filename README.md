@@ -72,6 +72,7 @@ Semua opsional (ada default). Letakkan di file `.env`.
 | Variable                | Default               | Keterangan                              |
 | ----------------------- | --------------------- | --------------------------------------- |
 | `PORT`                  | `3000`                | Port HTTP                               |
+| `CORS_ORIGIN`           | _(semua)_             | Origin frontend yang diizinkan (pisah koma); kosong = izinkan semua |
 | `DATABASE_HOST`         | `localhost`           | Host PostgreSQL                         |
 | `DATABASE_PORT`         | `5432`                | Port PostgreSQL                         |
 | `DATABASE_USER`         | `postgres`            | User PostgreSQL                         |
