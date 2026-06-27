@@ -8,6 +8,7 @@ import {
   Param,
   ParseUUIDPipe,
   Patch,
+  Post,
   Query,
   UseGuards,
 } from '@nestjs/common';
@@ -15,6 +16,7 @@ import { Roles } from '../auth/decorators/roles.decorator';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { RolesService } from '../roles/roles.service';
+import { CreateUserDto } from './dto/create-user.dto';
 import { QueryUsersDto } from './dto/query-users.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UsersService } from './users.service';
@@ -27,6 +29,11 @@ export class UsersController {
     private readonly usersService: UsersService,
     private readonly rolesService: RolesService,
   ) {}
+
+  @Post()
+  create(@Body() dto: CreateUserDto) {
+    return this.usersService.createUser(dto);
+  }
 
   @Get()
   findAll(@Query() query: QueryUsersDto) {

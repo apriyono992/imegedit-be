@@ -165,6 +165,7 @@ Base URL: `http://localhost:3000`
 
 | Method | Endpoint      | Body                              | Keterangan          |
 | ------ | ------------- | --------------------------------- | ------------------- |
+| POST   | `/users`      | `{ name, email, password, roleId?, active? }` | Buat user baru |
 | GET    | `/users`      | —                                 | List semua user     |
 | GET    | `/users/:id`  | —                                 | Detail user         |
 | PATCH  | `/users/:id`  | `{ name?, roleId?, active? }`     | Update user         |

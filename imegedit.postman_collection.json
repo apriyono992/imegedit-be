@@ -126,6 +126,22 @@
       "name": "Users (admin)",
       "item": [
         {
+          "name": "Create user",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "url": { "raw": "{{baseUrl}}/users", "host": ["{{baseUrl}}"], "path": ["users"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"ucok\",\n  \"email\": \"ucok@yopmail.com\",\n  \"password\": \"ucok123456\",\n  \"roleId\": 1\n}"
+            },
+            "description": "Admin membuat user baru. roleId & active opsional (default role 'user', active true)."
+          }
+        },
+        {
           "name": "List users",
           "request": {
             "method": "GET",

@@ -146,6 +146,27 @@ Profil user yang sedang login.
 
 Semua endpoint di bawah butuh role **Admin**.
 
+### POST `/users`
+
+Admin membuat user baru (langsung set role & status aktif).
+
+- **Auth:** Admin
+- **Status sukses:** `201 Created`
+
+**Body**
+
+| Field      | Tipe    | Required  | Aturan                          |
+| ---------- | ------- | --------- | ------------------------------- |
+| `name`     | string  | **wajib** | —                               |
+| `email`    | string  | **wajib** | format email, unik              |
+| `password` | string  | **wajib** | minimal 6 karakter              |
+| `roleId`   | int     | optional  | default role `user`; harus ada else `400` |
+| `active`   | boolean | optional  | default `true`                  |
+
+**Respons:** objek user yang dibuat (tanpa `password`).
+
+Error: `409 Conflict` bila email sudah terdaftar; `400` bila `roleId` tak valid.
+
 ### GET `/users`
 
 List user (pagination/filter/sort/search).
